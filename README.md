@@ -1,4 +1,6 @@
-# Wildserver
+Para visualizar a versão deste README em Português (Brasil), [clique aqui](README-pt_BR.md)
+
+# PHP Development/Production server
 
 Development/Production environment with Apache2 + PHP 7.4 + MySQL 8 + PhpMyAdmin 5.0.4 + Wildcard vHosts
 

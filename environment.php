@@ -7,7 +7,7 @@ if(!defined('ENVIRONMENTSTARTED')) {
   /* Environment variables */
   if(!defined('HOSTPX')) define("HOSTPX",($_SERVER['HOSTPX'] = ($_SERVER['SERVER_NAME'] = ($_SERVER['SERVER_NAME'] ?? 'localhost'))));
 
-  if(!defined('DEVELOPING')) define("DEVELOPING",($_SERVER['DEVELOPING'] = $developing = (strpos(str_replace('.local.','.dev.',HOSTPX),'.dev.') !== false)));
+  if(!defined('DEVELOPING')) define("DEVELOPING",($_SERVER['DEVELOPING'] = $developing = (strpos(str_replace(['.local.','localhost'],'.dev.',HOSTPX),'.dev.') !== false)));
   if(!defined('PRODUCTION')) define("PRODUCTION",($_SERVER['PRODUCTION'] = $production = (!($developing ?? true))));
   if(!defined('ENVIRONMENTSTARTED')) define("ENVIRONMENTSTARTED",true);
 
@@ -16,7 +16,7 @@ if(!defined('ENVIRONMENTSTARTED')) {
   if(!defined('DOCUMENT_PATH')) define("DOCUMENT_PATH",($_SERVER['DOCUMENT_PATH'] = $_SERVER['PATH']),true);
   if(!defined('MODULES_PATH')) define("MODULES_PATH",($_SERVER['MODULES_PATH'] = (__DIR__ .'/modules')),true);
 
-  if(!defined('AUTH_MODULE')) define("AUTH_MODULE",($_SERVER['AUTH_MODULE'] = $_SERVER['MODULES_PATH'] . "/auth.php"),true);
+  if(!defined('AUTH_MODULE')) define("AUTH_MODULE",($_SERVER['AUTH_MODULE'] = $_SERVER['MODULES_PATH'] . "/auth/load.php"),true);
   if(!defined('PHPMAIL_MODULE')) define("PHPMAIL_MODULE",($_SERVER['PHPMAIL_MODULE'] = $_SERVER['MODULES_PATH'] . "/phpmailer/load.php"),true);
   if(!defined('DOMPDF_MODULE')) define("DOMPDF_MODULE",($_SERVER['DOMPDF_MODULE'] = $_SERVER['MODULES_PATH'] . "/pdfdom/autoload.inc.php"),true);
   if(!defined('PDOMYSQL_MODULE')) define("PDOMYSQL_MODULE",($_SERVER['PDOMYSQL_MODULE'] = $_SERVER['MODULES_PATH'] . "/pdomysql/load.php"),true);
@@ -34,6 +34,7 @@ if(!defined('ENVIRONMENTSTARTED')) {
   $_SERVER['SMTP_MAIL'] = 'noreply@localhost'; // default sender email
   $_SERVER['SMTP_PASS'] = ''; // defaul email password auth
   $_SERVER['SMTP_NAME'] = ''; // default sender name on email
+  $_SERVER['SMTP_TYPE'] = 'ssl'; // default encryption type
 
   /* Basic configurations */
   $_SERVER['HTTPPX'] = 'http'.((!empty(@$_SERVER['HTTPS'])) ? 's':'').'://';

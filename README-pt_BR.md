@@ -1,4 +1,4 @@
-# Original wildserver
+# Servidor de desenvolvimento/produção em PHP
 
 Ambiente de desenvolvimento e produção com Apache2 + PHP 7.4 + MySQL 8 + PhpMyAdmin 5.0.4 + Virtual hosts coringas
 

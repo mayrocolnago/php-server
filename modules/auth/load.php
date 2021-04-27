@@ -112,7 +112,7 @@ auth::$userconfig['usertable'] = $authenticateusertable;
 
 /* PDO database functions */
 if(!function_exists('pdo_connect'))
-  @include(__DIR__ . '/pdomysql/load.php');
+  @include(__DIR__ . '/../pdomysql/load.php');
 
 function autocreatedbtables() {
   if(!function_exists('pdo_query')) return;

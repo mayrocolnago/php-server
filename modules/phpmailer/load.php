@@ -21,7 +21,7 @@ try {
     $mail->SMTPAuth = true;                               // Enable SMTP authentication
     $mail->Username = $extra['user'] ?? ((isset($extra['from'])) ? $extra['from'] : ($_SERVER['SMTP_MAIL'] ?? '')); // SMTP username
     $mail->Password = $extra['pass'] ?? ($_SERVER['SMTP_PASS'] ?? '');  // SMTP password
-    $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
+    $mail->SMTPSecure = ($_SERVER['SMTP_TYPE'] ?? ($extra['secure'] ?? ($extra['encryption'] ?? 'tls'))); // Enable TLS encryption, `ssl` also accepted
     $mail->Port = ($extra['port'] ?? ($_SERVER['SMTP_PORT'] ?? 587));  // TCP port to connect to
 
     //Recipients
@@ -33,7 +33,8 @@ try {
       foreach($to as $item)
         $mail->addAddress($item);
 
-    //$mail->addReplyTo('MAIL1', 'MAIL2');
+    if(isset($extra['replyto']))
+      $mail->addReplyTo($extra['replyto']);
 
     if(isset($extra['cc']))
       if(!is_array($extra['cc']))
