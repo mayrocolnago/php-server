@@ -1,0 +1,10 @@
+warn_days=7
+osdn=1
+updays=1
+update=0
+cron_mode=0
+letsencrypt_dns_wait=10
+upshow=1
+upmissing=0
+upmins=27
+uphour=22

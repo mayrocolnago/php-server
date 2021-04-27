@@ -1,0 +1,43 @@
+version: '3.5'
+services:
+  # bind:
+  #   restart: always
+  #   image: sameersbn/bind:9.16.1-20200524
+  #   ports:
+  #     - "53:53/udp"
+  #     - "53:53/tcp"
+  #     - "10000:10000/tcp"
+  #   volumes:
+  #     - ./data/binds:/data
+
+  mysql:
+    container_name: mysqlws
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+  #  ports:
+  #    - 3306:3306
+    volumes:
+      - .:/var/www/
+      - ./data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+  www:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: phpws
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - mysql
+    volumes:
+      - .:/var/www/
+      - ./data/certs:/etc/letsencrypt
+      - ./data/apache.conf:/etc/apache2/apache2.conf
+      - ./data/php.ini:/usr/local/etc/php/php.ini
+      - ./data/sites:/etc/apache2/sites-available
+      - ./data/sites:/etc/apache2/sites-enabled

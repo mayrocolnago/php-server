@@ -1,0 +1,4 @@
+init_script=fail2ban
+client_cmd=/usr/bin/fail2ban-client
+server_cmd=/usr/bin/fail2ban-server
+config_dir=/etc/fail2ban
