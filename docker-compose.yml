@@ -15,8 +15,8 @@ services:
     image: mysql:8.0
     command: --default-authentication-plugin=mysql_native_password
     restart: always
-  #  ports:
-  #    - 3306:3306
+    ports:
+      - 3306:3306
     volumes:
       - .:/var/www/
       - ./data/mysql:/var/lib/mysql
