@@ -78,7 +78,7 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-
 2. Clone this repository
 
 ```
-sudo git clone https://gitlab.com/mayrocolnago/php-server.git /var/www && 
+sudo git clone https://github.com/mayrocolnago/php-server /var/www && 
 sudo chmod -R 777 /var/www
 ```
 
@@ -101,7 +101,7 @@ https://www.docker.com/products/docker-desktop
 2. Clone this repository
 
 ```
-git clone https://gitlab.com/mayrocolnago/php-server.git $HOME\Server
+git clone https://github.com/mayrocolnago/php-server $HOME\Server
 ```
 
 3. Start your container
