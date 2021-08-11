@@ -17,7 +17,9 @@ Index
 
     - [Linux/Unix platform](#installation-linuxunix)
 
-    - [Windows/Mac platform](#installation-windowsmac)
+    - [Mac platform](#installation-mac)
+
+    - [Windows platform](#installation-windows)
 
   - [About the container](#about-the-container)
 
