@@ -93,7 +93,7 @@ Pronto.
 > Testado com Ubuntu 18.04
 
 
-# Instalação em Windows/Mac
+# Instalação em Mac
 
 1. Instale o docker
 
@@ -103,7 +103,8 @@ https://www.docker.com/products/docker-desktop
 2. Clonar este repositório
 
 ```
-git clone https://github.com/mayrocolnago/php-server $HOME\Server
+sudo git clone https://github.com/mayrocolnago/php-server /var/www && 
+sudo chmod -R 777 /var/www
 ```
 
 3. Iniciar seu container
@@ -114,7 +115,36 @@ docker-compose up -d
 
 Pronto.
 
-> Testado em MacOS 10+ e Windows 7/8/10 (No windows pode ser necessário algumas extensões extras)
+> Testado com Mac 10+
+
+
+# Instalação em Windows
+
+1. Install WSL2 Linux Core
+
+https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi
+
+
+2. Instale o docker
+
+https://www.docker.com/products/docker-desktop
+
+
+3. Clonar este repositório
+
+```
+git clone https://github.com/mayrocolnago/php-server "$USERPROFILE\Server"
+```
+
+4. Iniciar seu container
+
+```
+docker-compose up -d
+```
+
+Pronto.
+
+> Testado em Windows 7/8/10 (No windows pode ser necessário algumas extensões extras)
 
 
 # Sobre o container
