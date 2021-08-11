@@ -91,7 +91,7 @@ docker-compose up -d
 That's it.
 
 
-# Installation Windows/Mac
+# Installation Mac
 
 1. Install docker
 
@@ -101,10 +101,38 @@ https://www.docker.com/products/docker-desktop
 2. Clone this repository
 
 ```
-git clone https://github.com/mayrocolnago/php-server $HOME\Server
+sudo git clone https://github.com/mayrocolnago/php-server /var/www && 
+sudo chmod -R 777 /var/www
 ```
 
 3. Start your container
+
+```
+docker-compose up -d
+```
+
+That's it.
+
+
+# Installation Windows
+
+1. Install WSL2 Linux Core
+
+https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi
+
+
+2. Install docker
+
+https://www.docker.com/products/docker-desktop
+
+
+3. Clone this repository
+
+```
+git clone https://github.com/mayrocolnago/php-server "$USERPROFILE\Server"
+```
+
+4. Start your container
 
 ```
 docker-compose up -d
