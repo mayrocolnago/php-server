@@ -5,7 +5,8 @@
 * Copyright jQuery Foundation and other contributors; Licensed MIT */
 
 html,img,.icon,.fa,.fas,.far { filter:invert(85%); }
-html { background-color:#ddd; }
+html { background-color:#fff; }
+@-moz-document url-prefix() { html { background-color:#222; } }
 
 
 .ui-draggable-handle {
