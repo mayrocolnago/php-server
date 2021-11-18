@@ -11,11 +11,12 @@ require __DIR__ .'/SMTP.php';
 require __DIR__ .'/Exception.php';
 
 function sendmail($to,$subject,$msg,$extra = array()) {
-
-$mail = new PHPMailer(((isset($_REQUEST['debug'])) ? true : false)); // Passing `true` enables exceptions
-try {
+  @ob_start();
+  $_SERVER['PHPMailer_Response'] = '';
+  $mail = new PHPMailer(true); // Passing `true` enables exceptions
+  try {
     //Server settings
-    $mail->SMTPDebug = ((isset($_REQUEST['debug'])) ? ((is_numeric($_REQUEST['debug'])) ? $_REQUEST['debug'] : '2') : '0'); // Enable verbose debug output
+    $mail->SMTPDebug = 2; // Enable verbose debug output
     $mail->isSMTP();                                      // Set mailer to use SMTP
     $mail->Host = ($extra['host'] ?? ($_SERVER['SMTP_HOST'] ?? '')); // Specify main and backup SMTP servers
     $mail->SMTPAuth = true;                               // Enable SMTP authentication
@@ -64,15 +65,21 @@ try {
     $mail->Body    = utf8_decode($msg);
     $mail->AltBody = strip_tags(str_ireplace('<br>',chr(13),utf8_decode($msg)));
 
-    $mail->send();
+    $send = $mail->send();
+    var_dump('SENT',$send);
 
-    if(isset($_REQUEST['debug']))
-      return json_encode(array('status' => '1', 'msg' => 'Message has been sent'));
-    else return true;
   } catch (Exception $e) {
-      if(isset($_REQUEST['debug']))
-        return json_encode(array('status' => '0', 'msg' => 'Message could not be sent. Mailer Error: ', $mail->ErrorInfo));
-      else return false;
+    var_dump('ERROR',$e);
+    $send = false;
   }
+
+  $_SERVER['PHPMailer_Response'] = str_replace(["'",'"'],'::',@ob_get_contents());
+  @ob_end_clean();
+
+  if($_SERVER['DEVELOPING'] ?? true)
+    if(isset($_REQUEST['debug']))
+      var_dump($_SERVER['PHPMailer_Response']);
+  
+  return $send;
 }
 ?>

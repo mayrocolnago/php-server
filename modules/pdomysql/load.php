@@ -1,12 +1,12 @@
 <?php
 /* database configuration variables (dont change it here) */
 $dbhost = ((isset($dbhost)) ? $dbhost : "localhost");
-$dbport = ((isset($dbport)) ? $dbport : "3306");
+$dbport = ((isset($dbport)) ? $dbport : "");
 $dbuser = ((isset($dbuser)) ? $dbuser : "");
 $dbpass = ((isset($dbpass)) ? $dbpass : "");
-$dbbase = ((isset($dbbase)) ? $dbbase : $projectname); /* name of the database (required) */
+$dbbase = ((isset($dbbase)) ? $dbbase : ($projectname ?? ($project ?? ''))); /* name of the database (required) */
 $dbdier = ((isset($dbdier)) ? $dbdier : false); /* script dies in case of db returns error */
-
+$dbconn = ((isset($dbconn)) ? $dbconn : true); /* script dies in case of db returns error */
 
 /* Basic usage */
 /*
@@ -24,41 +24,66 @@ if(!class_exists('pdoclass')) {
 }
 
 if(!function_exists('pdo_connect'))	{
-	function pdo_connect($dbhost,$dbport,$dbuser,$dbpass,$dbbase,$cname="default") {
-	if($cname == "default") { try {
-		pdoclass::$db = new PDO('mysql:host='.$dbhost.';port='.$dbport.';dbname='.$dbbase.'', $dbuser, $dbpass);
-			pdoclass::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
-		return (pdoclass::$con = true);
-		} catch (PDOException $e) {
-		if(@$_GET['debug'] == "2") echo "<!-- Error: " . $e->getMessage() . " -->";
-		return false; } 
-	} else { try {
-		if((isset(pdoclass::$dbconn[$cname])) && (@pdoclass::$dbconn[$cname] != null)) return false; pdoclass::$dbconn[$cname] = null;
-		pdoclass::$dbconn[$cname] = new PDO('mysql:host='.$dbhost.';port='.$dbport.';dbname='.$dbbase.'', $dbuser, $dbpass);
-			pdoclass::$dbconn[$cname]->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); return true;
-		} catch (PDOException $e) { return false; } } }
+	function pdo_connect($array,$cname="default") {
+		$dbhost = ($array['dbhost'] ?? ($array['host'] ?? ($array['string'] ?? ($array['connection'] ?? ($array['conn'] ?? ($array['server'] ?? ($array['servidor'] ?? 'localhost')))))));
+		$dbport = ($array['dbport'] ?? ($array['port'] ?? ($array['porta'] ?? ($array['listen'] ?? ''))));
+		$dbuser = ($array['dbuser'] ?? ($array['user'] ?? ($array['username'] ?? ($array['login'] ?? ($array['authentication'] ?? ($array['auth'] ?? ''))))));
+		$dbpass = ($array['dbpass'] ?? ($array['pass'] ?? ($array['password'] ?? ($array['secret'] ?? ($array['key'] ?? ($array['hash'] ?? ($array['identifiedby'] ?? ($array['senha'] ?? ''))))))));
+		$dbbase = ($array['dbbase'] ?? ($array['base'] ?? ($array['dbname'] ?? ($array['database'] ?? ($array['workspace'] ?? ($array['banco'] ?? ''))))));
+		$connectionstr = 'mysql:'.($array['mysql'] ?? ('host='.$dbhost.((!empty($dbport)) ? ';port='.$dbport : '').((!empty($dbbase)) ? ';dbname='.$dbbase : '')));
+		if($cname == "default") { 
+			try {
+				pdoclass::$db = new PDO($connectionstr , $dbuser, $dbpass);
+				pdoclass::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
+				if(function_exists('pdo_onconnect')) pdo_onconnect($cname);
+				$result = (pdoclass::$con = true);
+			} catch (PDOException $e) {
+				$_SERVER['PDOSQL_ERROR'] = $e->getMessage();
+				if(@$_GET['debug'] == "2") echo "<!-- Error: " . $_SERVER['PDOSQL_ERROR'] . " -->";
+				if(function_exists('pdo_onerror')) pdo_onerror($_SERVER['PDOSQL_ERROR']);
+				$result = (pdoclass::$con = false);
+		} } else { 
+			try {
+				if((isset(pdoclass::$dbconn[$cname])) && (@pdoclass::$dbconn[$cname] !== null)) return false;
+				pdoclass::$dbconn[$cname] = null;
+				pdoclass::$dbconn[$cname] = new PDO($connectionstr, $dbuser, $dbpass);
+				pdoclass::$dbconn[$cname]->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
+				if(function_exists('pdo_onconnect')) pdo_onconnect($cname);
+				$result = true;
+			} catch (PDOException $e) { 
+				$_SERVER['PDOSQL_ERROR'] = $e->getMessage();
+				if(@$_GET['debug'] == "2") echo "<!-- Error: " . $_SERVER['PDOSQL_ERROR'] . " -->";
+				if(function_exists('pdo_onerror')) pdo_onerror($_SERVER['PDOSQL_ERROR']);
+				$result = false; 
+		} } 
+		return ($result ?? false);
+	}
 }
 
 if(!function_exists('pdo_query')) {
 	function pdo_query($select,$cname="default") {
-	if(($cname == "default") && (!pdoclass::$con)) return null;
-	if(($cname != "default") && (!(isset(pdoclass::$dbconn[$cname])) && (@pdoclass::$dbconn[$cname] != null))) return null;
-	$pdodb = ($cname == "default") ? pdoclass::$db : pdoclass::$dbconn[$cname];
-	try { $statm = $pdodb->prepare($select); $par = explode(' ',$select);
-	if(strtolower($par[0]) != '') if(!(strpos(strtolower($par[0]),'select') !== false)) $statm = pdo_num_rows($statm);
-	} catch (PDOException $e) { if(@$_GET['debug'] == "2") echo "<!-- Error: " . $e->getMessage() . " -->";
-		if(($cname == "default") && (function_exists('autocreatedbtables'))) autocreatedbtables();
-	$statm = $pdodb->prepare("select 0 as void"); }
-		return $statm; }
+		if(($cname == "default") && (!pdoclass::$con)) return null;
+		if(($cname != "default") && (!(isset(pdoclass::$dbconn[$cname])) && (@pdoclass::$dbconn[$cname] != null))) return null;
+		$pdodb = ($cname == "default") ? pdoclass::$db : pdoclass::$dbconn[$cname];
+		try { $statm = $pdodb->prepare($select); $par = explode(' ',$select);
+			if(strtolower($par[0]) != '') if(!(strpos(strtolower($par[0]),'select') !== false)) $statm = pdo_num_rows($statm); }
+		catch (PDOException $e) { 
+			$_SERVER['PDOSQL_ERROR'] = $e->getMessage();
+			if(@$_GET['debug'] == "2") echo "<!-- Error: " . $_SERVER['PDOSQL_ERROR'] . " -->";
+			if(function_exists('pdo_onerror')) pdo_onerror($_SERVER['PDOSQL_ERROR']);
+			if(($cname == "default") && (function_exists('autocreatedbtables'))) autocreatedbtables();
+			$statm = $pdodb->prepare("select 0 as void"); }
+		return $statm;
+	}
 }
 
 if(!function_exists('pdo_prepare'))	{	
 	function pdo_prepare($select,$cname="default") {
-	if(($cname == "default") && (!pdoclass::$con)) return null;
-	if(($cname != "default") && (!(isset(pdoclass::$dbconn[$cname])) && (@pdoclass::$dbconn[$cname] != null))) return null;
-	$pdodb = ($cname == "default") ? pdoclass::$db : pdoclass::$dbconn[$cname];
-		try { $statm = $pdodb->prepare($select);
-		} catch (PDOException $e) { if(@$_GET['debug'] == "2") echo "<!-- Error: " . $e->getMessage() . " -->"; }
+		if(($cname == "default") && (!pdoclass::$con)) return null;
+		if(($cname != "default") && (!(isset(pdoclass::$dbconn[$cname])) && (@pdoclass::$dbconn[$cname] != null))) return null;
+		$pdodb = ($cname == "default") ? pdoclass::$db : pdoclass::$dbconn[$cname];
+		try { $statm = $pdodb->prepare($select); }
+		catch (PDOException $e) { if(@$_GET['debug'] == "2") echo "<!-- Error: " . $e->getMessage() . " -->"; }
 		return $statm; }
 }
 
@@ -127,8 +152,14 @@ if(!function_exists('pdo_close')) {
 }
 
 /* Auto PDO connect */
-if(($dbuser != '') && ($dbpass != '') && ($dbbase != ''))
-  if(!pdo_connect($dbhost,$dbport,$dbuser,$dbpass,$dbbase))
-    if(isset($dbdier)) if($dbdier) die();
+if(($dbconn) && ($dbuser != '') && ($dbbase != ''))
+  if(!pdo_connect([
+	  	'host'=>$dbhost,
+		'port'=>$dbport,
+		'user'=>$dbuser,
+		'pass'=>$dbpass,
+		'base'=>$dbbase
+  	  ]))
+    if($dbdier) die();
 
 ?>
