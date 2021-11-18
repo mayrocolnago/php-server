@@ -36,15 +36,24 @@ function cronexists($project,$path = "") {
         /* file read */
         if(is_array($filesdir = scandir($project)))
           foreach($filesdir as $file)
-            if((strpos($file, 'cron.'.$crontime) !== false) && (file_exists($project.'/'.$file))) return $file;
-            else if((strpos($file, 'cron_'.$crontime) !== false) && (file_exists($project.'/'.$file))) return $file;
+            if(strpos($file, '.php') !== false)
+              if((strpos($file, 'cron.'.$crontime) !== false) && (file_exists($project.'/'.$file))) return $file;
+              else if((strpos($file, 'cron_'.$crontime) !== false) && (file_exists($project.'/'.$file))) return $file;
   } return "";
 }
 
 function cronexecute($project,$cronfile) {
+  if(($cronlog = str_replace('.php','.log',$cronfile)) !== $cronfile)
+      $croncurlsufx = str_replace('/dev/null', $_SERVER['CRONDIRECTORY'].$project.'/'.$cronlog, ($_SERVER['CRONCURLSUFX'] ?? ''));
+
   echo "Running cron ".$project." : ".$cronfile." ...\r\n";
-  echo shell_exec(str_replace('[PROJECT]',preg_replace('/[^0-9a-zA-Z]/','',$project),$_SERVER['CRONCURLPREF']).' "'.$_SERVER['CRONSERVER'].$project.'/'.$cronfile.'" '.$_SERVER['CRONCURLSUFX'])."\r\n";
+  echo shell_exec($line = str_replace('[PROJECT]', preg_replace('/[^0-9a-zA-Z]/','',$project), 
+                  $_SERVER['CRONCURLPREF']).' "'.$_SERVER['CRONSERVER'].$project.'/'.$cronfile.'" '.($croncurlsufx ?? ($_SERVER['CRONCURLSUFX'] ?? ''))).$line."\r\n\r\n";
 }
+
+/* Auto clear logs */
+if(($autoclearlogs ?? true) && (intval(date('d')) === 1) && (intval(date('H')) === 23) && (intval(date('i')) === 23))
+  @shell_exec('echo " " > /var/www/access.log && echo " " > /var/www/error.log');
 
 /* list 2 deep files */
 $folders = scandir($directory, 1);
