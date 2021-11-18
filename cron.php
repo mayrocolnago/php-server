@@ -1,6 +1,8 @@
 <?php 
 if(!isset($_REQUEST['crontest'])) exit('disabled. remove this whole line to activate cron.');
-
+/* Tip: You can automatically enable this CRON by running
+   # bash -c "sed -i -e '/disabled./s/if(/\/\/if(/' cron.php"
+   on your server directory */
 
 $_SERVER['CRONDIRECTORY'] = $directory = __DIR__ ."/html/";
 $_SERVER['CRONSERVER'] = "http://".($_SERVER['SERVER_NAME'] = "localhost")."/";
@@ -17,7 +19,7 @@ echo date('d-m-Y H:i:s')." Starting cron...\r\n\r\n";
 
 function cronexists($project,$path = "") {
   /* cron types */
-  $crontypes = ['minutely','hourly','daily','monthly','yearly'];
+  $crontypes = ['minutly','minutely','hourly','daily','mondly','tuesdly','wednesdly','thursdly','fridly','saturdly','sundly','monthly','yearly'];
   /* cron variables */
   $day = ((int)date('d')); $month = ((int)date('m')); $year = ((int)date('Y')); 
   $hour = ((int)date('H')); $minute = ((int)date('i')); $weekday = ((int)date('w')); /* 0-sun..6-sat */
@@ -28,11 +30,18 @@ function cronexists($project,$path = "") {
   /* search crons */
   foreach($crontypes as $crontime) {
     /* time verification */
-    if((($crontime == 'minutely')) ||
-       (($crontime == 'hourly')   && ($minute == 1)) ||
-       (($crontime == 'daily')    && (($hour == 6) && ($minute == 2))) ||
-       (($crontime == 'monthly')  && (($day == 1) && ($hour == 4) && ($minute == 3))) ||
-       (($crontime == 'yearly')   && (($month == 1) && ($day == 2) && ($hour == 3) && ($minute == 4))) )
+    if((($crontime == 'minutly'))  || (($crontime == 'minutely')) ||
+       (($crontime == 'hourly')    && (($minute == 1))) ||
+       (($crontime == 'daily')     && (($hour == 6) && ($minute == 2))) ||
+       (($crontime == 'mondly')    && (($weekday == 1) && ($hour == 7) && ($minute == 5))) ||
+       (($crontime == 'tuesdly')   && (($weekday == 2) && ($hour == 7) && ($minute == 5))) ||
+       (($crontime == 'wednesdly') && (($weekday == 3) && ($hour == 7) && ($minute == 5))) ||
+       (($crontime == 'thursdly')  && (($weekday == 4) && ($hour == 7) && ($minute == 5))) ||
+       (($crontime == 'fridly')    && (($weekday == 5) && ($hour == 7) && ($minute == 5))) ||
+       (($crontime == 'saturdly')  && (($weekday == 6) && ($hour == 7) && ($minute == 5))) ||
+       (($crontime == 'sundly')    && (($weekday == 0) && ($hour == 7) && ($minute == 5))) ||
+       (($crontime == 'monthly')   && (($day == 1) && ($hour == 4) && ($minute == 3))) ||
+       (($crontime == 'yearly')    && (($month == 1) && ($day == 2) && ($hour == 3) && ($minute == 4))) )
         /* file read */
         if(is_array($filesdir = scandir($project)))
           foreach($filesdir as $file)
