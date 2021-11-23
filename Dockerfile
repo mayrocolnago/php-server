@@ -15,7 +15,7 @@ RUN docker-php-ext-install iconv
 RUN docker-php-ext-install opcache
 RUN docker-php-ext-install gd
 RUN a2enmod rewrite && a2enmod ssl && a2enmod vhost_alias
-RUN apt-get install -y python-certbot-apache
+RUN apt-get install -y python3-certbot-apache
 
 RUN curl -o /tmp/imagick.tgz https://pecl.php.net/get/imagick-3.4.4.tgz && mkdir -p /tmp/imagick && tar xvzf /tmp/imagick.tgz -C /tmp/imagick
 RUN /bin/sh -c "cd /tmp/imagick/imagick-3.4.4 && phpize && ./configure && make && make install"
