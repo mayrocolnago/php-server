@@ -19,7 +19,7 @@ echo date('d-m-Y H:i:s')." Starting cron...\r\n\r\n";
 
 function cronexists($project,$path = "") {
   /* cron types */
-  $crontypes = ['minutly','minutely','hourly','daily','mondly','tuesdly','wednesdly','thursdly','fridly','saturdly','sundly','monthly','yearly'];
+  $crontypes = ['minutly','minutely','fively','hourly','daily','mondly','tuesdly','wednesdly','thursdly','fridly','saturdly','sundly','monthly','yearly'];
   /* cron variables */
   $day = ((int)date('d')); $month = ((int)date('m')); $year = ((int)date('Y')); 
   $hour = ((int)date('H')); $minute = ((int)date('i')); $weekday = ((int)date('w')); /* 0-sun..6-sat */
@@ -31,6 +31,7 @@ function cronexists($project,$path = "") {
   foreach($crontypes as $crontime) {
     /* time verification */
     if((($crontime == 'minutly'))  || (($crontime == 'minutely')) ||
+       (($crontime == 'fively')    && (!($minute % 5))) ||
        (($crontime == 'hourly')    && (($minute == 1))) ||
        (($crontime == 'daily')     && (($hour == 6) && ($minute == 2))) ||
        (($crontime == 'mondly')    && (($weekday == 1) && ($hour == 7) && ($minute == 5))) ||
