@@ -20,8 +20,12 @@ RUN apt-get install -y python3-certbot-apache
 RUN curl -o /tmp/imagick.tgz https://pecl.php.net/get/imagick-3.4.4.tgz && mkdir -p /tmp/imagick && tar xvzf /tmp/imagick.tgz -C /tmp/imagick
 RUN /bin/sh -c "cd /tmp/imagick/imagick-3.4.4 && phpize && ./configure && make && make install"
 
-COPY ./data/crontab /etc/cron.d/cronjobws
-RUN touch /var/log/cron.log  1> /dev/null 2> /dev/null
-RUN chmod 0644 /etc/cron.d/cronjobws 1> /dev/null 2> /dev/null
-RUN crontab /etc/cron.d/cronjobws  1> /dev/null 2> /dev/null
+RUN touch /var/log/cron.log  1> /dev/null 2> /dev/null 
+
+RUN export cf="* * * * * php /var/www/cron.php > /var/www/cron.log 2>/dev/null" && grep -qxF $cf /etc/crontab || echo $cf >> /etc/crontab
+RUN export cf="0 20 *  *  0 /usr/bin/certbot -auto renew 2> /dev/null > /var/www/certbot.log" && grep -qxF $cf /etc/crontab || echo $cf >> /etc/crontab
+RUN export cf="1 1 1 * * echo . > /var/www/access.log 2>/dev/null" && grep -qxF $cf /etc/crontab || echo $cf >> /etc/crontab
+RUN export cf="1 1 1 * * echo . > /var/www/error.log 2>/dev/null" && grep -qxF $cf /etc/crontab || echo $cf >> /etc/crontab
+RUN export cf="1 1 1 * * echo . > /var/www/cron.log 2>/dev/null" && grep -qxF $cf /etc/crontab || echo $cf >> /etc/crontab
+
 CMD /bin/sh -c "cron" && apache2-foreground
