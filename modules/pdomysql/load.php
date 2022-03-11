@@ -1,12 +1,11 @@
 <?php
 /* database configuration variables (dont change it here) */
-$dbhost = ((isset($dbhost)) ? $dbhost : "localhost");
-$dbport = ((isset($dbport)) ? $dbport : "3306");
-$dbuser = ((isset($dbuser)) ? $dbuser : "");
-$dbpass = ((isset($dbpass)) ? $dbpass : "");
-$dbbase = ((isset($dbbase)) ? $dbbase : $projectname); /* name of the database (required) */
-$dbdier = ((isset($dbdier)) ? $dbdier : false); /* script dies in case of db returns error */
-
+if(!defined('PDC_DBHOST')) define('PDC_DBHOST', ($dbhost = ((isset($dbhost)) ? $dbhost : "localhost")));
+if(!defined('PDC_DBPORT')) define('PDC_DBPORT', ($dbport = ((isset($dbport)) ? $dbport : "3306")));
+if(!defined('PDC_DBUSER')) define('PDC_DBUSER', ($dbuser = ((isset($dbuser)) ? $dbuser : "")));
+if(!defined('PDC_DBPASS')) define('PDC_DBPASS', ($dbpass = ((isset($dbpass)) ? $dbpass : "")));
+if(!defined('PDC_DBBASE')) define('PDC_DBBASE', ($dbbase = ((isset($dbbase)) ? $dbbase : $projectname))); /* name of the database (required) */
+if(!defined('PDC_DBDIER')) define('PDC_DBDIER', ($dbdier = ((isset($dbdier)) ? $dbdier : false))); /* script dies in case of db returns error */
 
 /* Basic usage */
 /*
@@ -17,14 +16,48 @@ $dbdier = ((isset($dbdier)) ? $dbdier : false); /* script dies in case of db ret
 
     pdo_query("insert into ...");
 
-	// You can also have a database.php file which will be called to create/update
-	// your database structure in case the script fails to execute a query
+	// You can also connect to a different database by invoking the class
+	$db = new pdoclass("database"[,"$dbhost:$dbport",$dbuser,$dbpass]);
+	$db::pdo_query("insert into ...");
+
 */
 
 /* PDO database functions */
 if(!class_exists('pdoclass')) {
-	class pdoclass { public static $db = null; public static $dbconn = array(); public static $con = false; }
+	
+	class pdoclass { 
+		public static $dbstring = 'new';
+		public static $db = null; 
+		public static $dbconn = array(); 
+		public static $con = false;
+		
+		public function __construct($dbbase='', $conectionstr=null, $dbuser=null, $dbpass=null) {
+			if($conectionstr === null) $conectionstr = (PDC_DBHOST ?? 'mysql').':'.(PDC_DBPORT ?? '3306');
+			if($dbuser === null) $dbuser = (PDC_DBUSER ?? 'root');
+			if($dbpass === null) $dbpass = (PDC_DBPASS ?? '');
+			self::$dbstring = $dbstring = preg_replace('/[^0-9a-z]/','',"pdo".microtime().uniqid());
+			return pdo_connect($conectionstr,$dbuser,$dbpass,$dbbase,$dbstring);
+		} 
 
+		public function __callStatic($name, $arguments) {
+			if(!function_exists($name)) return [];
+			$arguments[] = self::$dbstring;
+			return call_user_func_array($name, $arguments);
+		}
+
+		public function database() {
+			pdo_query("CREATE TABLE IF NOT EXISTS log_query (
+				id bigint(20) NOT NULL AUTO_INCREMENT,
+				query longtext NULL DEFAULT NULL,
+				parameters longtext NULL DEFAULT NULL,
+				response longtext NULL DEFAULT NULL,
+				runat int NULL,
+				PRIMARY KEY (id))");
+		}		
+	}
+}
+
+if(!function_exists('pdo_connect')) {
 
 	function pdo_autoconfig($dir = null, $file = 'database.php') {
 		if($dir === null) $dir = __DIR__;
@@ -32,14 +65,11 @@ if(!class_exists('pdoclass')) {
 		if(function_exists('autocreatedbtables')) return autocreatedbtables();
 		for($i=0;$i<5;$i++)
 			if(file_exists("$dir/$file")) return @include_once("$dir/$file");
-			else $dir = realpath("$dir/../"); }
+			else $dir = realpath("$dir/../"); 
+	}
 
-
-	function pdo_connect($dbhost,$dbuser,$dbpass,$dbbase='',$dbport='3306',$cname="default",$defresult=false) {
-		if(strpos($dbhost,':') !== false)
-		  if((is_array($sep = explode(':',$dbhost))) && (count($sep) < 3))
-		    $sep = (($dbhost=$sep[0]).':'.($dbport=$sep[1]));
-		$conectionstr = 'mysql:host='.$dbhost.((!empty($dbport)) ? ';port='.$dbport : '').((!empty($dbbase)) ? ';dbname='.$dbbase : '');
+	function pdo_connect($conectionstr,$dbuser,$dbpass,$dbbase='',$cname="default",$defresult=false) {
+		$conectionstr = 'mysql:host='.$conectionstr.((!empty($dbbase)) ? ';dbname='.$dbbase : '');
 		if($cname == "default") { 
 			try {
 				pdoclass::$db = new PDO($conectionstr , $dbuser, $dbpass);
@@ -76,8 +106,8 @@ if(!class_exists('pdoclass')) {
 				@pdoclass::$db->prepare("INSERT INTO log_query (query, parameters, response, runat) VALUES (:q, :p, :r, :t)")
 						  	  ->execute(['q'=>($statm['s'] ?? null), 'p'=>json_encode($statm['v'] ?? []), 
 									     'r'=>($statm['d'] ?? ($e ?? null)), 't'=>strtotime('now')]);
-	  } catch (PDOException $e) { } 
-	return $eo; }
+		} catch (PDOException $e) { } 
+		return $eo; }
 
 
 	function pdo_insert_id($cname="default") { 
@@ -177,8 +207,8 @@ if(!class_exists('pdoclass')) {
 
 
 	/* Auto PDO connect */
-	if(($dbuser != '') && ($dbpass != '') && ($dbbase != ''))
-	  if(!pdo_connect($dbhost,$dbuser,$dbpass,$dbbase,$dbport))
-		if(isset($dbdier)) if($dbdier) die();
+	if((PDC_DBHOST != '') && (PDC_DBUSER != '') && (PDC_DBBASE != ''))
+	  if(!pdo_connect(PDC_DBHOST.":".(PDC_DBPORT ?? '3306'),PDC_DBUSER,(PDC_DBPASS ?? ''),PDC_DBBASE))
+		if(PDC_DBDIER) die();
 }
 ?>
