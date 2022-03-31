@@ -169,7 +169,7 @@ git commit -a -m "Just update" && git pull
 To get inside the container once it's up, use the following command
 
 ```
-docker exec -it $(docker ps -f "name=phpws" -n 1 --format "{{.ID}}") /bin/bash
+docker-compose exec www bash
 ```
 
 
@@ -203,7 +203,7 @@ To set a specific virtual host, please head to **bin/sites/**
 In order to generate a new certificate to a specific vhost you must enter the following command on the host machine
 
 ```
-docker exec -it $(docker ps -f "name=phpws" -n 1 --format "{{.ID}}") /bin/bash -c certbot\ --apache\ -d\ EXAMPLE.COM
+docker-compose exec www bash -c certbot\ --apache\ -d\ EXAMPLE.COM
 ```
 
 It will get the webcontainer ID and send the certbot trigger to certify the *EXAMPLE.COM* domain on apache.
