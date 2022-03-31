@@ -11,7 +11,7 @@ services:
   #     - ./data/binds:/data
 
   mysql:
-    container_name: mysqlws
+    container_name: mysqls
     image: mariadb:10.5.2
     command: --default-authentication-plugin=mysql_native_password
     restart: always
@@ -27,7 +27,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: phpws
+    container_name: phps
     restart: always
     ports:
       - 80:80
@@ -39,3 +39,4 @@ services:
       - ./data/php.ini:/usr/local/etc/php/php.ini
       - ./data/sites:/etc/apache2/sites-available
       - ./data/sites:/etc/apache2/sites-enabled
+      - ./data/mods:/etc/apache2/mods-enabled
