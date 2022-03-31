@@ -13,11 +13,11 @@ Ambiente de desenvolvimento e produção com Apache2 + PHP 7.4 + MySQL 8 + PhpMy
 
   - [Instalação](#instalacao)
 
-    - [Plataforma Linux/Unix](#plataforma-linuxunix)
+    - [Plataforma Linux/Unix](#instalação-linuxunix)
 
-    - [Plataforma Mac](#plataforma-windowsmac)
+    - [Plataforma Mac](#instalação-mac)
 
-    - [Plataforma Windows](#plataforma-windowsmac)
+    - [Plataforma Windows](#instalação-windows)
 
   - [Sobre o container](#sobre-o-container)
 
@@ -206,7 +206,7 @@ Para especificar um certificado HTTPS para um site, por favor, insira-o em **bin
 Para gerar um certificado digital para um host especifico, entre com o comando:
 
 ```
-docker exec -it $(docker ps -f "name=phpws" -n 1 --format "{{.ID}}") /bin/bash -c certbot\ --apache\ -d\ EXAMPLE.COM
+docker-compose exec www bash -c certbot\ --apache\ -d\ EXAMPLE.COM
 ```
 
 Este comando irá pegar o ID do container web e enviar o comando para o certbot gerar o certificado para *EXAMPLE.COM* no apache.
